@@ -9,6 +9,11 @@ datos_estadisticas_jugador = None
 
 
 def imprimir_menu():
+    '''
+    Imprime en consola las distintas opciones del menú según el documento propuesto
+    No tiene parametros
+    No retorna Valores
+    '''
     print("\nMenú de opciones:")
     print("1. Mostrar la lista de todos los jugadores del Dream Team")
     print("2. Mostrar estadisticas de un jugador")
@@ -29,7 +34,7 @@ def imprimir_menu():
     print("17. Mostrar el jugador con mayor cantidad de logros obtenidos")
     print("18. Mostrar jugadores que superen el porcentaje de tiros triples según valor")
     print("19. Mostrar el jugador con mayor cantidad de temporadas jugadas")
-    print("20. ")
+    print("20. Mostrar jugadores ordenados por posición que tengan un porcentaje de tiros de campo superior según valor")
     print("0. Salir del programa")
 
 
