@@ -71,6 +71,44 @@ def quick_sort_jugador_estadistica(lista_jugadores, key: str, ordenamiento: bool
         return aux_lista_izq
 
 
+def quick_sort_jugador_no_diccionario(lista_jugadores, key: str, ordenamiento: bool = True):
+    '''
+    En base a una lista de jugadores se realiza el ordenamiento de manera recursiva
+    ascenciente o descendiente en base a la key enviada
+    Parametros:
+        lista_jugadores -> Lista de jugadores a ordenar que contiene estadisticas con un diccionario
+        key -> Campo por el cual se ordenara que no sea un diccionario
+        ordenamiento -> se ordenara de manera ascendente (True) o descendiente (False)
+    Devuelvo una lista ordenada
+    '''
+    if (len(lista_jugadores) <= 1):
+        return lista_jugadores
+    else:
+        aux_lista_izq = []
+        aux_lista_der = []
+        pivote = lista_jugadores[0]
+        for jugador in lista_jugadores[1:]:
+            # True Ascendiente
+            # False Descendiente
+            if (ordenamiento):
+                if (jugador[key] < pivote[key]):
+                    aux_lista_izq.append(jugador)
+                else:
+                    aux_lista_der.append(jugador)
+            else:
+                if (jugador[key] > pivote[key]):
+                    aux_lista_izq.append(jugador)
+                else:
+                    aux_lista_der.append(jugador)
+        aux_lista_izq = quick_sort_jugador_no_diccionario(
+            aux_lista_izq, key, ordenamiento)
+        aux_lista_der = quick_sort_jugador_no_diccionario(
+            aux_lista_der, key, ordenamiento)
+        aux_lista_izq.append(pivote)
+        aux_lista_izq += aux_lista_der
+        return aux_lista_izq
+
+
 def generar_csv(archivo, nombre_archivo: str):
     '''
     Genera un archivo en base al los parametros enviados, no requiere que el nombre del archivo tenga la extension
@@ -85,7 +123,7 @@ def generar_csv(archivo, nombre_archivo: str):
         print('Se genero el archivo {0}'.format(nombre_archivo))
 
 
-def imprimir_valor_referencia(valor: str, resultado):
+def imprimir_valor_referencia(valor: str, resultado, extra=None):
     '''
     Imprime en consola un valor principal y otro secundario separado por guion medio
     Parametros:
@@ -93,7 +131,10 @@ def imprimir_valor_referencia(valor: str, resultado):
         resultado: Valor que se desea ingresar como secundario
     No retorna valores
     '''
-    print('{0} - {1}'.format(valor, resultado))
+    if extra:
+        print('{0} - {1} - {2}'.format(valor, resultado, extra))
+    else:
+        print('{0} - {1}'.format(valor, resultado))
 
 
 def obtener_valores_json(json_file_name: str):
@@ -143,7 +184,13 @@ def obtener_imprimir_estadisticas_jugador(lista_jugadores):
     imprimir_jugares_indice(lista_jugadores)
     opcion = input(
         '\n Ingrese el indice del jugador que desea ver las estadisticas: ')
-    # TODO regex validar indice
+    # Valido el indice ingresado
+    if not opcion.isnumeric():
+        print('La opción ingresada debe ser numerica')
+        return None
+    if int(opcion) > (len(lista_jugadores)-1):
+        print('La opción ingresada supera la cantidad de jugadores')
+        return None
     lista_claves_csv = ['nombre', 'posicion']
     lista_valores_csv = [lista_jugadores[int(
         opcion)]['nombre'], lista_jugadores[int(opcion)]['posicion']]
@@ -198,7 +245,7 @@ def obtener_jugadores_por_nombre(lista_jugadores, nombre: str):
     return jugadores_encontrados
 
 
-def imprimir_logros_jugador(lista_jugadores, nombre: str):
+def imprimir_logros_jugador(lista_jugadores):
     '''
     Imprime los logros del el o los jugadores encontrados según el texto ingresado
     Parametros:
@@ -206,10 +253,18 @@ def imprimir_logros_jugador(lista_jugadores, nombre: str):
         nombre: Texto del cual se utilizara para buscar al jugador por el campo 'nombre' en la lista
     No retorna valores
     '''
-    jugadores = obtener_jugadores_por_nombre(lista_jugadores, nombre)
+    while True:
+        buscar_nombre = input(
+            'Ingrese el nombre el jugador que desea ver los logros: ')
+        if not re.match(r'[^a-zA-Z\s]', buscar_nombre):
+            print('Ingreso valores incorrectos intente nuevamente')
+        else:
+            break
+    jugadores = obtener_jugadores_por_nombre(lista_jugadores, buscar_nombre)
     if len(jugadores) == 0:
         print('No se encontro algún jugador con ese nombre u apellido')
     else:
+        print(jugadores)
         for jugador in jugadores:
             print('\n{0}'.format(jugador['nombre']))
             print('Logros: ')
@@ -217,7 +272,7 @@ def imprimir_logros_jugador(lista_jugadores, nombre: str):
                 print('\t{0}'.format(logro))
 
 
-def imprimir_miembro_salon_fama(lista_jugadores, nombre: str):
+def imprimir_miembro_salon_fama(lista_jugadores):
     '''
     Imprime si el o los jugadores encontrados son Miembros del Salón de la Fama del Baloncesto
     Parametros:
@@ -225,15 +280,23 @@ def imprimir_miembro_salon_fama(lista_jugadores, nombre: str):
         nombre: Texto del cual se utilizara para buscar al jugador por el campo 'nombre' en la lista
     No retorna valores
     '''
-    jugadores = obtener_jugadores_por_nombre(lista_jugadores, nombre)
+    while True:
+        buscar_nombre = input(
+            'Ingrese el nombre el jugador que desea saber si es miembro: ')
+        if re.match(r'[^a-zA-Z\s]', buscar_nombre):
+            print('Ingreso valores incorrectos intente nuevamente')
+        else:
+            break
+    jugadores = obtener_jugadores_por_nombre(lista_jugadores, buscar_nombre)
     patron = '^Miembro del Salon de la Fama del Baloncesto$'
-    mensaje = 'El jugador no es Miembro'
     for jugador in jugadores:
+        mensaje = 'El jugador {0} no es Miembro'.format(
+            jugador['nombre'])
         for logro in jugador['logros']:
             if re.search(patron, logro):
                 mensaje = 'El jugador {0} es Miembro del Salón de la Fama del Baloncesto'.format(
                     jugador['nombre'])
-    print(mensaje)
+        print(mensaje)
 
 
 def imprimir_jugador_mayor_key(lista_jugadores, key: str):
@@ -284,7 +347,7 @@ def imprimir_jugador_mayor_logros(lista_jugadores):
         mayor_jugador['nombre'], len(mayor_jugador['logros']))
 
 
-def imprimir_jugador_supera_valor_clave_numerica(lista_jugadores, key: str):
+def imprimir_jugador_supera_valor_clave_numerica(lista_jugadores, key: str, posicion=False):
     '''
     Imprime todos los jugadores de una lista ingresada que Superen el valor ingresado por teclado
     Parametros:
@@ -292,89 +355,133 @@ def imprimir_jugador_supera_valor_clave_numerica(lista_jugadores, key: str):
         key: Clave de la cual se quiere imprimir los resultados
     No retorna valores
     '''
-    buscar_valor = input('Ingrese el valor que desea buscar: ')
+    encontro = False
+    while True:
+        buscar_valor = input('Ingrese el valor que desea buscar: ')
+        if not re.match(r'^[0-9]+$|^[0-9]+\.[0-9]+$', buscar_valor):
+            print('Ingreso un valor incorrecto, solo se permiten números, reintente')
+        else:
+            break
     buscar_valor = float(buscar_valor)
     for jugador in lista_jugadores:
         if jugador['estadisticas'][key] > buscar_valor:
-            imprimir_valor_referencia(
-                jugador['nombre'], jugador['estadisticas'][key])
+            encontro = True
+            if posicion:
+                imprimir_valor_referencia(
+                    jugador['nombre'], jugador['posicion'], jugador['estadisticas'][key])
+            else:
+                imprimir_valor_referencia(
+                    jugador['nombre'], jugador['estadisticas'][key])
+    if not encontro:
+        print('No se encontraron jugadores que superen el valor indicado')
+
+
+def imprimir_promedio_puntos_jugador(lista_jugadores):
+    '''
+    Imprime el promedio de puntos por partido de cada jugador de manera Ascendente
+    Parametros:
+        lista_jugadores: Lista de jugadores del cual se obtendran los valores
+    No retorna valores
+    '''
+    resultado = quick_sort_jugador_estadistica(
+        lista_jugadores, 'promedio_puntos_por_partido')
+    for jugador in resultado:
+        imprimir_valor_referencia(
+            jugador['nombre'], jugador['estadisticas']['promedio_puntos_por_partido'])
+
+
+def imprimir_promedio_puntos_excluyendo_menor(lista_jugadores):
+    '''
+    Imprime el promedio de puntos por partido excluyendo al que tiene menos puntos
+    Parametros:
+        lista_jugadores: Lista de jugadores del cual se obtendran los valores
+    No retorna valores
+    '''
+    resultado = quick_sort_jugador_estadistica(
+        lista_jugadores, 'promedio_puntos_por_partido')
+    # Elimino de la lista al jugador con menor promedio de puntos por partido
+    resultado.pop(0)
+    promedio = calcular_promedio_key_estadisticas(
+        resultado, 'promedio_puntos_por_partido')
+    print('\nPromedio de puntos por partido: {0}\n'.format(promedio))
+
+
+def imprimir_jugadores_supera_valor_ordenados(lista_jugadores):
+    '''
+    Imprime el promedio de puntos por partido excluyendo al que tiene menos puntos
+    Parametros:
+        lista_jugadores: Lista de jugadores del cual se obtendran los valores
+    No retorna valores
+    '''
+    lista_ordenada = quick_sort_jugador_no_diccionario(
+        lista_jugadores, 'posicion')
+    imprimir_jugador_supera_valor_clave_numerica(
+        lista_ordenada, 'porcentaje_tiros_de_campo', True)
 
 
 # Guardo una copia de los valores del archivo
 json_copy = obtener_valores_json(path_json_file)
 
+# Main app
 while True:
     imprimir_menu()
     opcion = input('\nIngrese la opción deseada: ')
-    match(opcion):
-        case "1":
+    if not re.match(r'^[0-9]{1,2}', opcion):
+        opcion = -1
+    match(int(opcion)):
+        case 1:
             imprimir_jugar_posicion(json_copy['jugadores'])
-        case "2":
+        case 2:
             datos_estadisticas_jugador = obtener_imprimir_estadisticas_jugador(
                 json_copy['jugadores'])
-        case "3":
+        case 3:
             generar_csv_estadistica_jugador()
-        case "4":
-            buscar_nombre = input(
-                'Ingrese el nombre el jugador que desea ver los logros: ')
-            imprimir_logros_jugador(json_copy['jugadores'], buscar_nombre)
-        case "5":
-            resultado = quick_sort_jugador_estadistica(
-                json_copy['jugadores'], 'promedio_puntos_por_partido')
-            for jugador in resultado:
-                imprimir_valor_referencia(
-                    jugador['nombre'], jugador['estadisticas']['promedio_puntos_por_partido'])
-        case "6":
-            buscar_nombre = input(
-                'Ingrese el nombre el jugador que desea saber si es miembro: ')
-            imprimir_miembro_salon_fama(json_copy['jugadores'], buscar_nombre)
-        case "7":
+        case 4:
+            imprimir_logros_jugador(json_copy['jugadores'])
+        case 5:
+            imprimir_promedio_puntos_jugador(json_copy['jugadores'])
+        case 6:
+            imprimir_miembro_salon_fama(json_copy['jugadores'])
+        case 7:
             imprimir_jugador_mayor_key(
                 json_copy['jugadores'], 'rebotes_totales')
-        case "8":
+        case 8:
             imprimir_jugador_mayor_key(
                 json_copy['jugadores'], 'porcentaje_tiros_de_campo')
-        case "9":
+        case 9:
             imprimir_jugador_mayor_key(
                 json_copy['jugadores'], 'asistencias_totales')
-        case "10":
+        case 10:
             imprimir_jugador_supera_valor_clave_numerica(
                 json_copy['jugadores'], 'promedio_puntos_por_partido')
-        case "11":
+        case 11:
             imprimir_jugador_supera_valor_clave_numerica(
                 json_copy['jugadores'], 'rebotes_totales')
-        case "12":
+        case 12:
             imprimir_jugador_supera_valor_clave_numerica(
                 json_copy['jugadores'], 'asistencias_totales')
-        case "13":
+        case 13:
             imprimir_jugador_mayor_key(
                 json_copy['jugadores'], 'robos_totales')
-        case "14":
+        case 14:
             imprimir_jugador_mayor_key(
                 json_copy['jugadores'], 'bloqueos_totales')
-        case "15":
+        case 15:
             imprimir_jugador_supera_valor_clave_numerica(
                 json_copy['jugadores'], 'porcentaje_tiros_libres')
-        case "16":
-            resultado = quick_sort_jugador_estadistica(
-                json_copy['jugadores'], 'promedio_puntos_por_partido')
-            # Elimino de la lista al jugador con menor promedio de puntos por partido
-            resultado.pop(0)
-            promedio = calcular_promedio_key_estadisticas(
-                resultado, 'promedio_puntos_por_partido')
-            print('\nPromedio de puntos por partido: {0}\n'.format(promedio))
-        case "17":
+        case 16:
+            imprimir_promedio_puntos_excluyendo_menor(json_copy['jugadores'])
+        case 17:
             imprimir_jugador_mayor_logros(json_copy['jugadores'])
-        case "18":
+        case 18:
             imprimir_jugador_supera_valor_clave_numerica(
                 json_copy['jugadores'], 'porcentaje_tiros_triples')
-        case "19":
+        case 19:
             imprimir_jugador_mayor_key(
                 json_copy['jugadores'], 'temporadas')
-        case "0":
+        case 20:
+            imprimir_jugadores_supera_valor_ordenados(json_copy['jugadores'])
+        case 0:
             break
-        case "-":
-            for jugador in json_copy['jugadores']:
-                print(jugador['nombre'])
         case _:
             print('Ingreso una opción incorrecta')
