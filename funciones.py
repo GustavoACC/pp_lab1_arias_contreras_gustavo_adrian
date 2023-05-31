@@ -222,7 +222,7 @@ def obtener_imprimir_estadisticas_jugador(lista_jugadores):
     }
 
 
-def generar_csv_estadistica_jugador():
+def generar_csv_estadistica_jugador(datos_estadisticas_jugador):
     '''
     Genero un archivo csv del jugador obtenido en el punto 2 solo si se busco previamente
     No requiere de parametros

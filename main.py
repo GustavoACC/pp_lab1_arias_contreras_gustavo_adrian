@@ -23,7 +23,7 @@ while True:
             datos_estadisticas_jugador = obtener_imprimir_estadisticas_jugador(
                 json_copy['jugadores'])
         case 3:
-            generar_csv_estadistica_jugador()
+            generar_csv_estadistica_jugador(datos_estadisticas_jugador)
         case 4:
             imprimir_logros_jugador(json_copy['jugadores'])
         case 5:
