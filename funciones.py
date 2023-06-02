@@ -261,7 +261,7 @@ def imprimir_logros_jugador(lista_jugadores):
     while True:
         buscar_nombre = input(
             'Ingrese el nombre el jugador que desea ver los logros: ')
-        if not re.match(r'[^a-zA-Z\s]', buscar_nombre):
+        if not re.match(r'[a-zA-Z\s]', buscar_nombre):
             print('Ingreso valores incorrectos intente nuevamente')
         else:
             break
@@ -269,7 +269,6 @@ def imprimir_logros_jugador(lista_jugadores):
     if len(jugadores) == 0:
         print('No se encontro algún jugador con ese nombre u apellido')
     else:
-        print(jugadores)
         for jugador in jugadores:
             print('\n{0}'.format(jugador['nombre']))
             print('Logros: ')
@@ -517,13 +516,13 @@ def guardar_posicion_estadistica(lista_jugadores, lista_ordenada, key_estadistic
                 jugador[key_estadisticas][key] = index + 1
 
 
-def guardar_lista_posicion_estadistica_jugador(lista_jugadores, lista_diccionarios, key_estadisticas, lista_keys):
+def guardar_lista_posicion_estadistica_jugador(lista_jugadores, lista_diccionarios, key_estadisticas: str, lista_keys):
     '''
     Guarda valores dentro de a lista referenciada, ordenando y guardando la posicion en base a la lista de keys solicitada
     Parametros:
         lista_jugadores: Lista de jugadores donde se obtendran los valores
         lista_diccionarios: Lista donde se guardara por referencia el resultado final
-        key_estadisticas: Clave que se utilizara para obtener las estadisticas de la lista de diccionarios
+        key_estadisticas: Clave para registrar la lista de claves a guardar
         lista_keys: Lista de Claves que se desean obtener las posiciones
     No retorna valores
     '''
